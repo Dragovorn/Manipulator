@@ -27,6 +27,7 @@ public class SendListener implements ActionListener {
 
     private void execute(String cmd, String key, Command value) {
         if (cmd.equalsIgnoreCase(key)) {
+            Manipulator.getInstance().getLogger().info("Console run command: " + cmd);
             value.handle();
             this.executed = true;
         }
