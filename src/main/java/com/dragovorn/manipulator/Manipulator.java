@@ -2,13 +2,13 @@ package com.dragovorn.manipulator;
 
 import com.dragovorn.manipulator.command.Command;
 import com.dragovorn.manipulator.command.CommandManager;
-import com.dragovorn.manipulator.command.ConsoleThread;
 import com.dragovorn.manipulator.command.console.CommandConsole;
 import com.dragovorn.manipulator.command.console.executor.CommandsExecutor;
 import com.dragovorn.manipulator.command.console.executor.ExitExecutor;
 import com.dragovorn.manipulator.command.console.executor.VersionExecutor;
 import com.dragovorn.manipulator.log.DragonLogger;
 import com.dragovorn.manipulator.log.LoggingOutputStream;
+import com.dragovorn.manipulator.util.FileUtil;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -35,15 +35,11 @@ public class Manipulator {
         instance = this;
         running = true;
 
-        File logDir = new File("logs");
-
-        if (!logDir.exists()) {
-            logDir.mkdirs();
-        }
+        FileUtil.createDirectories();
 
         this.version = new Version();
 
-        this.logger = new DragonLogger("Manipulator", logDir + File.separator + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + "-%g.log", gui);
+        this.logger = new DragonLogger("Manipulator", FileUtil.log + File.separator + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + "-%g.log", gui);
 
         System.setErr(new PrintStream(new LoggingOutputStream(this.logger, Level.SEVERE), true));
         System.setOut(new PrintStream(new LoggingOutputStream(this.logger, Level.INFO), true));
@@ -51,13 +47,14 @@ public class Manipulator {
         this.logger.info("Starting Manipulator v" + this.getVersion() + "...");
 
         this.commandManager = new CommandManager();
+        this.logger.info("Registering built-in console commands...");
         this.commandManager.registerCommand(new CommandConsole(new ExitExecutor(), "exit"));
         this.commandManager.registerCommand(new CommandConsole(new VersionExecutor(), "version"));
         this.commandManager.registerCommand(new CommandConsole(new CommandsExecutor(), "commands"));
+        this.logger.info("Built-in console commands registered!");
 
-        if (!gui) {
-            new ConsoleThread().start();
-        }
+        this.logger.info("Loading Manipulator Modules...");
+
     }
 
     public void shutdown() {

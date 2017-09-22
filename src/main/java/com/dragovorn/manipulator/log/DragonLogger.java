@@ -1,5 +1,6 @@
 package com.dragovorn.manipulator.log;
 
+import com.dragovorn.manipulator.command.ConsoleThread;
 import com.dragovorn.manipulator.log.gui.ConsoleWindow;
 
 import java.io.IOException;
@@ -30,6 +31,7 @@ public class DragonLogger extends Logger {
                 handler.setLevel(Level.INFO);
                 handler.setFormatter(formatter);
                 addHandler(handler);
+                new ConsoleThread().start();
             }
         } catch (IOException exception) {
             System.err.println("Could not register logger!");
