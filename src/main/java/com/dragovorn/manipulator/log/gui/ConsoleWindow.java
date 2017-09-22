@@ -1,8 +1,12 @@
 package com.dragovorn.manipulator.log.gui;
 
+import com.dragovorn.manipulator.Manipulator;
+
 import javax.swing.*;
 import javax.swing.text.DefaultStyledDocument;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class ConsoleWindow {
 
@@ -51,10 +55,17 @@ public class ConsoleWindow {
         this.panel.add(this.command);
         this.panel.add(this.button);
 
-        this.jFrame = new JFrame("Console");
+        this.jFrame = new JFrame("Manipulator v" + Manipulator.getInstance().getVersion());
 
         this.jFrame.setResizable(false);
-        this.jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        this.jFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        this.jFrame.addWindowListener(new WindowAdapter() {
+
+            @Override
+            public void windowClosing(WindowEvent event) {
+                Manipulator.getInstance().shutdown();
+            }
+        });
         this.jFrame.add(panel);
         this.jFrame.pack();
         this.jFrame.setVisible(true);

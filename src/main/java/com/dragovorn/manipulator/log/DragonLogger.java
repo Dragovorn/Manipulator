@@ -21,7 +21,7 @@ public class DragonLogger extends Logger {
             addHandler(fileHandler);
 
             if (gui) {
-                JTextAreaHandler handler = new JTextAreaHandler(ConsoleWindow.getInstance().getConsole());
+                JTextAreaHandler handler = new JTextAreaHandler(new ConsoleWindow().getConsole());
                 handler.setLevel(Level.INFO);
                 handler.setFormatter(formatter);
                 addHandler(handler);
