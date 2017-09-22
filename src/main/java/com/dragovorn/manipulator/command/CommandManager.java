@@ -1,7 +1,7 @@
 package com.dragovorn.manipulator.command;
 
-import com.dragovorn.manipulator.command.console.ConsoleCommand;
-import com.dragovorn.manipulator.command.game.GameCommand;
+import com.dragovorn.manipulator.command.console.CommandConsole;
+import com.dragovorn.manipulator.command.game.CommandGame;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.HashMap;
@@ -18,9 +18,9 @@ public class CommandManager {
     }
 
     public void registerCommand(Command command) {
-        if (command instanceof ConsoleCommand) {
+        if (command instanceof CommandConsole) {
             insertInto(this.consoleCommands, command);
-        } else if (command instanceof GameCommand) {
+        } else if (command instanceof CommandGame) {
             insertInto(this.gameCommands, command);
         } else {
             throw new InvalidCommandTypeException();

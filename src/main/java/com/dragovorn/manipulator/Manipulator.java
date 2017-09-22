@@ -3,7 +3,7 @@ package com.dragovorn.manipulator;
 import com.dragovorn.manipulator.command.Command;
 import com.dragovorn.manipulator.command.CommandManager;
 import com.dragovorn.manipulator.command.ConsoleThread;
-import com.dragovorn.manipulator.command.console.ConsoleCommand;
+import com.dragovorn.manipulator.command.console.CommandConsole;
 import com.dragovorn.manipulator.command.console.executor.ExitExecutor;
 import com.dragovorn.manipulator.command.console.executor.VersionExecutor;
 import com.dragovorn.manipulator.log.DragonLogger;
@@ -50,8 +50,8 @@ public class Manipulator {
         this.logger.info("Starting Manipulator v" + this.getVersion() + "...");
 
         this.commandManager = new CommandManager();
-        this.commandManager.registerCommand(new ConsoleCommand(new ExitExecutor(), "exit"));
-        this.commandManager.registerCommand(new ConsoleCommand(new VersionExecutor(), "version"));
+        this.commandManager.registerCommand(new CommandConsole(new ExitExecutor(), "exit"));
+        this.commandManager.registerCommand(new CommandConsole(new VersionExecutor(), "version"));
 
         if (!gui) {
             new ConsoleThread().start();
