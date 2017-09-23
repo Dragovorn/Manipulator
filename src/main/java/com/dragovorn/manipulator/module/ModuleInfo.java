@@ -7,6 +7,7 @@ public class ModuleInfo {
     private File file;
 
     private String name;
+    private String main;
     private String author;
     private String version;
     private String[] dependencies;
@@ -16,6 +17,7 @@ public class ModuleInfo {
         private File file;
 
         private String name;
+        private String main;
         private String author;
         private String version;
         private String[] dependencies;
@@ -26,6 +28,12 @@ public class ModuleInfo {
 
         public Builder setName(String name) {
             this.name = name;
+
+            return this;
+        }
+
+        public Builder setMain(String main) {
+            this.main = main;
 
             return this;
         }
@@ -48,14 +56,19 @@ public class ModuleInfo {
             return this;
         }
 
+        public boolean hasMain() {
+            return !this.main.isEmpty();
+        }
+
         public ModuleInfo build() {
-            return new ModuleInfo(this.file, this.name, this.author, this.version, this.dependencies);
+            return new ModuleInfo(this.file, this.name, this.main, this.author, this.version, this.dependencies);
         }
     }
 
-    private ModuleInfo(File file, String name, String author, String version, String[] dependencies) {
+    private ModuleInfo(File file, String name, String main, String author, String version, String[] dependencies) {
         this.file = file;
         this.name = name;
+        this.main = main;
         this.author = author;
         this.version = version;
         this.dependencies = dependencies;
@@ -67,6 +80,10 @@ public class ModuleInfo {
 
     public String getName() {
         return this.name;
+    }
+
+    public String getMain() {
+        return this.main;
     }
 
     public String getAuthor() {
