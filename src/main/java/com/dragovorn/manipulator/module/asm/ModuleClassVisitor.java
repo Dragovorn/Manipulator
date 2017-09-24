@@ -5,6 +5,7 @@ import com.dragovorn.manipulator.command.console.ConsoleCommand;
 import com.dragovorn.manipulator.command.game.GameCommand;
 import com.dragovorn.manipulator.module.ManipulatorModule;
 import com.dragovorn.manipulator.module.Module;
+import com.dragovorn.manipulator.util.StringUtil;
 import org.objectweb.asm.*;
 
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public class ModuleClassVisitor extends ClassVisitor {
         MAIN,
         CONSOLE,
         GAME,
+        LISTENER,
         NONE
     }
 
@@ -37,18 +39,18 @@ public class ModuleClassVisitor extends ClassVisitor {
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
         this.name = name;
-        this.extendsMain = superName.equals(ManipulatorModule.class.getCanonicalName().replaceAll("\\.", "/"));
-        this.implementsExecutor = Arrays.stream(interfaces).anyMatch(str -> str.equals(CommandExecutor.class.getName().replaceAll("\\.", "/")));
+        this.extendsMain = superName.equals(StringUtil.formatClassPath(ManipulatorModule.class));
+        this.implementsExecutor = Arrays.stream(interfaces).anyMatch(str -> str.equals(StringUtil.formatClassPath(CommandExecutor.class)));
         super.visit(version, access, name, signature, superName, interfaces);
     }
 
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        if (desc.equals("L" + Module.class.getCanonicalName().replaceAll("\\.", "/") + ";")) {
+        if (desc.equals("L" + StringUtil.formatClassPath(Module.class) + ";")) {
             add(ClassType.MAIN, this.types);
-        } else if (desc.equals("L" + ConsoleCommand.class.getCanonicalName().replaceAll("\\.", "/") + ";")) {
+        } else if (desc.equals("L" + StringUtil.formatClassPath(ConsoleCommand.class) + ";")) {
             add(ClassType.CONSOLE, this.types);
-        } else if (desc.equals("L" + GameCommand.class.getCanonicalName().replaceAll("\\.", "/") + ";")) {
+        } else if (desc.equals("L" + StringUtil.formatClassPath(GameCommand.class) + ";")) {
             add(ClassType.GAME, this.types);
         } else {
             System.out.println(desc);
@@ -58,10 +60,10 @@ public class ModuleClassVisitor extends ClassVisitor {
     }
 
     @Override
-    public MethodVisitor visitMethod(int var1, String var2, String desc, String var4, String[] var5) {
+    public MethodVisitor visitMethod(int var1, String name, String desc, String var4, String[] var5) {
         Type[] types = Type.getArgumentTypes(desc);
 
-        return new ModuleMethodVisitor(types);
+        return new ModuleMethodVisitor(name, types, this.types);
     }
 
     @Override
@@ -70,10 +72,10 @@ public class ModuleClassVisitor extends ClassVisitor {
         super.visitEnd();
     }
 
-    private void add(ClassType type, List<ClassType> list) {
+    static void add(ClassType type, List<ClassType> list) {
         if (list.get(0) == ClassType.NONE) {
             list.set(0, type);
-        } else {
+        } else if (!list.contains(type)) {
             list.add(type);
         }
     }

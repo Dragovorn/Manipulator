@@ -7,14 +7,22 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.util.List;
+
 class ModuleMethodVisitor extends MethodVisitor {
+
+    private String name;
 
     private Type[] types;
 
-    ModuleMethodVisitor(Type[] types) {
+    private List<ModuleClassVisitor.ClassType> classTypes;
+
+    ModuleMethodVisitor(String name, Type[] types, List<ModuleClassVisitor.ClassType> classTypes) {
         super(Opcodes.ASM6);
 
+        this.name = name;
         this.types = types;
+        this.classTypes = classTypes;
     }
 
     @Override
@@ -23,12 +31,15 @@ class ModuleMethodVisitor extends MethodVisitor {
             try {
                 if (this.types.length == 1) {
                     if (Class.forName(this.types[0].getClassName()).isAssignableFrom(Event.class)) {
-                        System.out.println("    Found good listener!");
+                        System.out.println("    Found good listener! (" + this.name + ")");
+                        ModuleClassVisitor.add(ModuleClassVisitor.ClassType.LISTENER, this.classTypes);
+
+                        // TODO register listener to listener map
                     } else {
-                        System.out.println("    " + this.types[0] + " doesn't extend Event!");
+                        System.out.println("    " + this.types[0] + " doesn't extend Event! (" + this.name + ")");
                     }
                 } else {
-                    System.out.println("    A listener should have one parameter!");
+                    System.out.println("    A listener should have one parameter! (" + this.name + ")");
                 }
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
@@ -36,10 +47,5 @@ class ModuleMethodVisitor extends MethodVisitor {
         }
 
         return super.visitAnnotation(desc, var2);
-    }
-
-    @Override
-    public void visitEnd() {
-        super.visitEnd();
     }
 }
