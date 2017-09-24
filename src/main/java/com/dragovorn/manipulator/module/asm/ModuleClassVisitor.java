@@ -5,31 +5,33 @@ import com.dragovorn.manipulator.command.console.ConsoleCommand;
 import com.dragovorn.manipulator.command.game.GameCommand;
 import com.dragovorn.manipulator.module.ManipulatorModule;
 import com.dragovorn.manipulator.module.Module;
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class ModuleClassVisitor extends ClassVisitor {
 
-    private Type type;
+    private List<ClassType> types;
 
     private String name;
 
     private boolean implementsExecutor;
     private boolean extendsMain;
 
-    enum Type {
+    public enum ClassType {
         MAIN,
         CONSOLE,
         GAME,
-        EVENT,
         NONE
     }
 
     public ModuleClassVisitor() {
         super(Opcodes.ASM6);
+
+        this.types = new ArrayList<>();
+        this.types.add(ClassType.NONE);
     }
 
     @Override
@@ -43,19 +45,36 @@ public class ModuleClassVisitor extends ClassVisitor {
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
         if (desc.equals("L" + Module.class.getCanonicalName().replaceAll("\\.", "/") + ";")) {
-            this.type = Type.MAIN;
+            add(ClassType.MAIN, this.types);
         } else if (desc.equals("L" + ConsoleCommand.class.getCanonicalName().replaceAll("\\.", "/") + ";")) {
-            this.type = Type.CONSOLE;
+            add(ClassType.CONSOLE, this.types);
         } else if (desc.equals("L" + GameCommand.class.getCanonicalName().replaceAll("\\.", "/") + ";")) {
-            this.type = Type.GAME;
+            add(ClassType.GAME, this.types);
+        } else {
+            System.out.println(desc);
         }
 
         return super.visitAnnotation(desc, visible);
     }
 
     @Override
+    public MethodVisitor visitMethod(int var1, String var2, String desc, String var4, String[] var5) {
+        Type[] types = Type.getArgumentTypes(desc);
+
+        return new ModuleMethodVisitor(types);
+    }
+
+    @Override
     public void visitEnd() {
-        System.out.println(this.name + "(type=" + this.type + ", CmdExecutor=" + this.implementsExecutor + ", Module=" + this.extendsMain + ")");
+        System.out.println(this.name + "(types=" + this.types + ", CmdExecutor=" + this.implementsExecutor + ", Module=" + this.extendsMain + ")");
         super.visitEnd();
+    }
+
+    private void add(ClassType type, List<ClassType> list) {
+        if (list.get(0) == ClassType.NONE) {
+            list.set(0, type);
+        } else {
+            list.add(type);
+        }
     }
 }

@@ -1,5 +1,4 @@
 /.idea/
 /logs/
 /target/
-/modules/
 dependency-reduced-pom.xml
