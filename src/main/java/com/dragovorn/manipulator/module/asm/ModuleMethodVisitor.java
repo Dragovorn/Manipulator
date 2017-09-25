@@ -36,7 +36,7 @@ class ModuleMethodVisitor extends MethodVisitor {
             try {
                 if (this.types.length == 1) {
                     if (Class.forName(this.types[0].getClassName()).isAssignableFrom(Event.class)) {
-                        this.visitor.builder.addListener(this.visitor.name, this.name);
+                        this.visitor.builder.addListener(this.types[0].toString().substring(1, this.types[0].toString().length() - 1).replaceAll("/", "."), this.visitor.name.replaceAll("/", "."), this.name);
                         ModuleClassVisitor.add(ModuleClassVisitor.ClassType.LISTENER, this.classTypes);
                     } else {
                         Manipulator.getInstance().getLogger().warning("Ignoring " + this.name + ", malformed listener method.");

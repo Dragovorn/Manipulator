@@ -11,7 +11,7 @@ public class ModuleInfo {
 
     private File file;
 
-    private Map<String, List<String>> listeners;
+    private Map<String, Map<String, List<String>>> listeners;
     private Map<String, String> consoleCommands;
     private Map<String, String> gameCommands;
 
@@ -25,7 +25,7 @@ public class ModuleInfo {
 
         private File file;
 
-        private Map<String, List<String>> listeners;
+        private Map<String, Map<String, List<String>>> listeners;
         private Map<String, String> consoleCommands;
         private Map<String, String> gameCommands;
 
@@ -42,12 +42,13 @@ public class ModuleInfo {
             this.listeners = new HashMap<>();
         }
 
-        public Builder addListener(String path, String methodName) {
-            List<String> methods = this.listeners.computeIfAbsent(path, (str) -> new ArrayList<>());
+        public Builder addListener(String event, String path, String methodName) {
+            Map<String, List<String>> events = this.listeners.computeIfAbsent(event, (str) -> new HashMap<>());
+            List<String> listeners = events.computeIfAbsent(path, (str) -> new ArrayList<>());
+            events.put(path, listeners);
+            this.listeners.put(event, events);
 
-            methods.add(methodName);
-
-            this.listeners.put(path, methods);
+            listeners.add(methodName);
 
             return this;
         }
@@ -103,7 +104,7 @@ public class ModuleInfo {
         }
     }
 
-    private ModuleInfo(File file, String name, String main, String author, String version, String[] dependencies, Map<String, String> consoleCommands, Map<String, String> gameCommands, Map<String, List<String>> listeners) {
+    private ModuleInfo(File file, String name, String main, String author, String version, String[] dependencies, Map<String, String> consoleCommands, Map<String, String> gameCommands, Map<String, Map<String, List<String>>> listeners) {
         this.file = file;
         this.name = name;
         this.main = main;
@@ -147,14 +148,14 @@ public class ModuleInfo {
         return this.gameCommands;
     }
 
-    public Map<String, List<String>> getListeners() {
+    public Map<String, Map<String, List<String>>> getListeners() {
         return this.listeners;
     }
 
     public int getNumListeners() {
         AtomicInteger num = new AtomicInteger(0);
 
-        this.listeners.forEach((path, list) -> num.addAndGet(list.size()));
+        this.listeners.forEach((event, map) -> map.forEach((path, list) -> num.addAndGet(list.size())));
 
         return num.get();
     }

@@ -5,6 +5,7 @@ import com.dragovorn.manipulator.command.Command;
 import com.dragovorn.manipulator.command.executor.CommandExecutor;
 import com.dragovorn.manipulator.command.console.CommandConsole;
 import com.dragovorn.manipulator.command.game.CommandGame;
+import com.dragovorn.manipulator.event.Event;
 import com.dragovorn.manipulator.module.asm.ModuleClassVisitor;
 import com.dragovorn.manipulator.util.FileUtil;
 import org.objectweb.asm.ClassReader;
@@ -149,7 +150,7 @@ public class ModuleManager {
                     List<Command> commands = new ArrayList<>();
 
                     if (!plugin.getInfo().getConsoleCommands().isEmpty()) {
-                        Manipulator.getInstance().getLogger().log(Level.INFO, "[{0}] Registering {1} console commands...", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getConsoleCommands().size() });
+                        Manipulator.getInstance().getLogger().log(Level.INFO, "[{0}] Registering {1} console command(s)...", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getConsoleCommands().size() });
 
                         plugin.getInfo().getConsoleCommands().forEach((name, path) -> {
                             try {
@@ -161,7 +162,7 @@ public class ModuleManager {
                     }
 
                     if (!plugin.getInfo().getGameCommands().isEmpty()) {
-                        Manipulator.getInstance().getLogger().log(Level.INFO, "[{0}] Registering {1} game commands...", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getGameCommands().size() });
+                        Manipulator.getInstance().getLogger().log(Level.INFO, "[{0}] Registering {1} game command(s)...", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getGameCommands().size() });
 
                         plugin.getInfo().getGameCommands().forEach((name, path) -> {
                             try {
@@ -176,7 +177,25 @@ public class ModuleManager {
                 }
 
                 if (plugin.getInfo().hasListeners()) {
-                    Manipulator.getInstance().getLogger().log(Level.INFO, "[{0}] Registering {1} listeners...");
+                    Manipulator.getInstance().getLogger().log(Level.INFO, "[{0}] Registering {1} listener(s)...", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getNumListeners() });
+
+                    plugin.getInfo().getListeners().forEach((event, listeners) -> listeners.forEach((clazz, methods) -> {
+                        try {
+                            Class<? extends Event> eventClass = (Class<? extends Event>) plugin.getLoader().loadClass(event);
+                            Class listener = plugin.getLoader().loadClass(clazz);
+
+                            methods.forEach(method -> {
+                                try {
+                                    Manipulator.getInstance().getEventBus().registerListener(eventClass, listener.getDeclaredMethod(method, Event.class));
+                                } catch (NoSuchMethodException e) {
+                                    e.printStackTrace();
+                                }
+                            });
+
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }));
                 }
 
                 Manipulator.getInstance().getLogger().log(Level.INFO, "Enabled {0} version {1} by {2}!", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getVersion(), plugin.getInfo().getName() });

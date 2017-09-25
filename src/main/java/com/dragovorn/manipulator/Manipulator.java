@@ -6,6 +6,7 @@ import com.dragovorn.manipulator.command.console.CommandConsole;
 import com.dragovorn.manipulator.command.executor.CommandsExecutor;
 import com.dragovorn.manipulator.command.executor.ExitExecutor;
 import com.dragovorn.manipulator.command.executor.VersionExecutor;
+import com.dragovorn.manipulator.event.EventBus;
 import com.dragovorn.manipulator.log.DragonLogger;
 import com.dragovorn.manipulator.log.LoggingOutputStream;
 import com.dragovorn.manipulator.module.ModuleManager;
@@ -23,6 +24,8 @@ import java.util.logging.Logger;
 public class Manipulator {
 
     private static Manipulator instance;
+
+    private EventBus eventBus;
 
     private ModuleManager moduleManager;
 
@@ -51,6 +54,7 @@ public class Manipulator {
 
         this.commandManager = new CommandManager();
         this.moduleManager = new ModuleManager();
+        this.eventBus = new EventBus();
         this.logger.info("Registering built-in console commands...");
         this.commandManager.registerCommand(new CommandConsole(new ExitExecutor(), "exit"));
         this.commandManager.registerCommand(new CommandConsole(new VersionExecutor(), "version"));
@@ -85,6 +89,10 @@ public class Manipulator {
 
     public void registerCommand(Command command) {
         this.commandManager.registerCommand(command);
+    }
+
+    public EventBus getEventBus() {
+        return this.eventBus;
     }
 
     public Map<String, Command> getConsoleCommands() {
