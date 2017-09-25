@@ -1,5 +1,6 @@
 package com.dragovorn.manipulator.module.asm;
 
+import com.dragovorn.manipulator.Manipulator;
 import com.dragovorn.manipulator.event.Event;
 import com.dragovorn.manipulator.event.Listener;
 import org.objectweb.asm.AnnotationVisitor;
@@ -31,15 +32,13 @@ class ModuleMethodVisitor extends MethodVisitor {
             try {
                 if (this.types.length == 1) {
                     if (Class.forName(this.types[0].getClassName()).isAssignableFrom(Event.class)) {
-                        System.out.println("    Found good listener! (" + this.name + ")");
+                        // TODO add listener to list to be registered
                         ModuleClassVisitor.add(ModuleClassVisitor.ClassType.LISTENER, this.classTypes);
-
-                        // TODO register listener to listener map
                     } else {
-                        System.out.println("    " + this.types[0] + " doesn't extend Event! (" + this.name + ")");
+                        Manipulator.getInstance().getLogger().warning("Ignoring " + this.name + ", malformed listener method.");
                     }
                 } else {
-                    System.out.println("    A listener should have one parameter! (" + this.name + ")");
+                    Manipulator.getInstance().getLogger().warning("Ignoring " + this.name + ", malformed listener method.");
                 }
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();

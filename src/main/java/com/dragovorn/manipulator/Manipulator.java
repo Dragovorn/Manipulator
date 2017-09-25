@@ -8,6 +8,7 @@ import com.dragovorn.manipulator.command.console.executor.ExitExecutor;
 import com.dragovorn.manipulator.command.console.executor.VersionExecutor;
 import com.dragovorn.manipulator.log.DragonLogger;
 import com.dragovorn.manipulator.log.LoggingOutputStream;
+import com.dragovorn.manipulator.module.ModuleManager;
 import com.dragovorn.manipulator.util.FileUtil;
 
 import java.io.File;
@@ -22,6 +23,8 @@ import java.util.logging.Logger;
 public class Manipulator {
 
     private static Manipulator instance;
+
+    private ModuleManager moduleManager;
 
     private CommandManager commandManager;
 
@@ -47,14 +50,15 @@ public class Manipulator {
         this.logger.info("Starting Manipulator v" + this.getVersion() + "...");
 
         this.commandManager = new CommandManager();
+        this.moduleManager = new ModuleManager();
         this.logger.info("Registering built-in console commands...");
         this.commandManager.registerCommand(new CommandConsole(new ExitExecutor(), "exit"));
         this.commandManager.registerCommand(new CommandConsole(new VersionExecutor(), "version"));
         this.commandManager.registerCommand(new CommandConsole(new CommandsExecutor(), "commands"));
         this.logger.info("Built-in console commands registered!");
 
-        this.logger.info("Loading Manipulator Modules...");
-
+        this.moduleManager.loadModules();
+        this.moduleManager.enableModules();
     }
 
     public void shutdown() {
@@ -66,13 +70,21 @@ public class Manipulator {
 
             @Override
             public void run() {
+                moduleManager.disableModules();
+
                 for (Handler handler : getLogger().getHandlers()) {
                     handler.close();
                 }
 
+                getLogger().info("Manipulator v" + getVersion() + " shutting down NOW!");
+
                 System.exit(0);
             }
         }.start();
+    }
+
+    public void registerCommand(Command command) {
+        this.commandManager.registerCommand(command);
     }
 
     public Map<String, Command> getConsoleCommands() {

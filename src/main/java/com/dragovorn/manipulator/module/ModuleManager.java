@@ -26,6 +26,8 @@ public class ModuleManager {
     }
 
     public void loadModules() {
+        Manipulator.getInstance().getLogger().info("Injecting module discoverer into modules folder...");
+
         if (FileUtil.modules.listFiles() != null) {
             for (File file : FileUtil.modules.listFiles()) {
                 if (!file.getName().matches("(.+).(jar)")) {
@@ -42,6 +44,9 @@ public class ModuleManager {
             }
         }
 
+        Manipulator.getInstance().getLogger().info("Finished discovering modules!");
+        Manipulator.getInstance().getLogger().info("Loading modules...");
+
         Map<ModuleInfo, Boolean> pluginStatus = new HashMap<>();
 
         for (Map.Entry<String, ModuleInfo> entry : this.load.entrySet()) {
@@ -49,6 +54,8 @@ public class ModuleManager {
                 Manipulator.getInstance().getLogger().log(Level.INFO, "Failed to enable {0}", entry.getKey());
             }
         }
+
+        Manipulator.getInstance().getLogger().info("Finished loading modules!");
 
         this.load.clear();
         this.load = null;
@@ -109,10 +116,13 @@ public class ModuleManager {
                 clazz.init(info);
 
                 this.modules.put(info.getName(), clazz);
+                Manipulator.getInstance().getLogger().log(Level.INFO, "Loading {0} version {1} by {2}...", new Object[] { info.getName(), info.getVersion(), info.getAuthor() });
+
                 clazz.onLoad();
 
                 Manipulator.getInstance().getLogger().log(Level.INFO, "Loaded {0} version {1} by {2}!", new Object[] { info.getName(), info.getVersion(), info.getAuthor() });
             } catch (Throwable throwable) {
+                throwable.printStackTrace();
                 return false;
             }
         }
@@ -122,28 +132,40 @@ public class ModuleManager {
         return status;
     }
 
-    public void enablePlugins() {
+    public void enableModules() {
+        Manipulator.getInstance().getLogger().info("Enabling modules...");
+
         for (ManipulatorModule plugin : this.modules.values()) {
             try {
+                Manipulator.getInstance().getLogger().log(Level.INFO, "Enabling {0} version {1} by {2}...", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getVersion(), plugin.getInfo().getName() });
+
                 plugin.onEnable();
 
-                Manipulator.getInstance().getLogger().log(Level.INFO, "Enabled {0} version {1} by {2}", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getVersion(), plugin.getInfo().getName() });
+                Manipulator.getInstance().getLogger().log(Level.INFO, "Enabled {0} version {1} by {2}!", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getVersion(), plugin.getInfo().getName() });
             } catch (Throwable throwable) {
                 Manipulator.getInstance().getLogger().log(Level.WARNING, "Encountered exception while enabling module: " + plugin.getInfo().getName(), throwable);
             }
         }
+
+        Manipulator.getInstance().getLogger().info("Finished enabling modules!");
     }
 
-    public void disablePlugins() {
+    public void disableModules() {
+        Manipulator.getInstance().getLogger().info("Disabling modules...");
+
         for (ManipulatorModule plugin : this.modules.values()) {
             try {
+                Manipulator.getInstance().getLogger().log(Level.INFO, "Disabling {0} version {1} by {2}...", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getVersion(), plugin.getInfo().getAuthor() });
+
                 plugin.onDisable();
 
-                Manipulator.getInstance().getLogger().log(Level.INFO, "Disabled {0} version {1} by {2}", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getVersion(), plugin.getInfo().getAuthor() });
+                Manipulator.getInstance().getLogger().log(Level.INFO, "Disabled {0} version {1} by {2}!", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getVersion(), plugin.getInfo().getAuthor() });
             } catch (Throwable throwable) {
                 Manipulator.getInstance().getLogger().log(Level.WARNING, "Encountered exception while disabling module: " + plugin.getInfo().getName(), throwable);
             }
         }
+
+        Manipulator.getInstance().getLogger().info("Finished disabling modules!");
     }
 
     public static ModuleInfo loadModuleInfo(File file) throws IOException {
@@ -162,13 +184,13 @@ public class ModuleManager {
                 }
 
                 ClassReader reader = new ClassReader(jar.getInputStream(entry));
-                reader.accept(new ModuleClassVisitor(), 0);
+                reader.accept(new ModuleClassVisitor(builder), 0);
             }
         }
 
-//        if (builder.hasMain()) {
-//            throw new RuntimeException();
-//        }
+        if (!builder.hasMain()) {
+            throw new RuntimeException();
+        }
 
         return builder.build();
     }

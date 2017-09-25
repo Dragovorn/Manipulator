@@ -12,17 +12,17 @@ public class ModuleInfo {
     private String version;
     private String[] dependencies;
 
-    static class Builder {
+    public static class Builder {
 
         private File file;
 
         private String name;
         private String main;
-        private String author;
-        private String version;
-        private String[] dependencies;
+        private String author = "Unknown";
+        private String version = "1.0.0";
+        private String[] dependencies = new String[0];
 
-        public Builder(File file) {
+        Builder(File file) {
             this.file = file;
         }
 
@@ -56,11 +56,11 @@ public class ModuleInfo {
             return this;
         }
 
-        public boolean hasMain() {
+        boolean hasMain() {
             return !this.main.isEmpty();
         }
 
-        public ModuleInfo build() {
+        ModuleInfo build() {
             return new ModuleInfo(this.file, this.name, this.main, this.author, this.version, this.dependencies);
         }
     }
