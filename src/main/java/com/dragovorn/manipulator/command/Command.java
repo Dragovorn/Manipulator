@@ -1,5 +1,7 @@
 package com.dragovorn.manipulator.command;
 
+import com.dragovorn.manipulator.command.executor.CommandExecutor;
+
 public abstract class Command {
 
     protected CommandExecutor executor;

@@ -1,7 +1,7 @@
 package com.dragovorn.manipulator.command.console;
 
 import com.dragovorn.manipulator.command.Command;
-import com.dragovorn.manipulator.command.CommandExecutor;
+import com.dragovorn.manipulator.command.executor.CommandExecutor;
 
 public final class CommandConsole extends Command {
 

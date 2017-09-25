@@ -1,4 +1,4 @@
-package com.dragovorn.manipulator.command;
+package com.dragovorn.manipulator.command.executor;
 
 public interface CommandExecutor {
 

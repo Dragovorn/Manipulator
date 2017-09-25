@@ -1,7 +1,6 @@
-package com.dragovorn.manipulator.command.console.executor;
+package com.dragovorn.manipulator.command.executor;
 
 import com.dragovorn.manipulator.Manipulator;
-import com.dragovorn.manipulator.command.CommandExecutor;
 
 public class ExitExecutor implements CommandExecutor {
     @Override

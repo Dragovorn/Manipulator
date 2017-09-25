@@ -9,7 +9,7 @@ public class ModuleAnnotationVisitor extends AnnotationVisitor {
 
     private ModuleClassVisitor.ClassType type;
 
-    public ModuleAnnotationVisitor(ModuleClassVisitor.ClassType type, ModuleClassVisitor visitor) {
+    ModuleAnnotationVisitor(ModuleClassVisitor.ClassType type, ModuleClassVisitor visitor) {
         super(Opcodes.ASM6);
 
         this.type = type;

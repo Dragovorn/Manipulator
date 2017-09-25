@@ -1,6 +1,7 @@
 package com.dragovorn.manipulator.module.asm;
 
-import com.dragovorn.manipulator.command.CommandExecutor;
+import com.dragovorn.manipulator.Manipulator;
+import com.dragovorn.manipulator.command.executor.CommandExecutor;
 import com.dragovorn.manipulator.command.console.ConsoleCommand;
 import com.dragovorn.manipulator.command.game.GameCommand;
 import com.dragovorn.manipulator.module.ManipulatorModule;
@@ -19,7 +20,7 @@ public class ModuleClassVisitor extends ClassVisitor {
 
     private List<ClassType> types;
 
-    private String name;
+    String name;
 
     String console;
     String game;
@@ -74,21 +75,27 @@ public class ModuleClassVisitor extends ClassVisitor {
     public MethodVisitor visitMethod(int var1, String name, String desc, String var4, String[] var5) {
         Type[] types = Type.getArgumentTypes(desc);
 
-        return new ModuleMethodVisitor(name, types, this.types);
+        return new ModuleMethodVisitor(name, types, this.types, this);
     }
 
     @Override
     public void visitEnd() {
         if (this.types.contains(ClassType.CONSOLE) && this.implementsExecutor) {
-            // TODO add command to a list to be registered
+            this.builder.putConsole(this.console, this.name.replaceAll("/", "."));
+        } else if (this.types.contains(ClassType.CONSOLE)) {
+            Manipulator.getInstance().getLogger().warning(this.name + " is labeled as a command but doesn't implement CommandExecutor!");
         }
 
         if (this.types.contains(ClassType.GAME) && this.implementsExecutor) {
-            // TODO add command to a list to be registered
+            this.builder.putGame(this.game, this.name.replaceAll("/", "."));
+        } else if (this.types.contains(ClassType.GAME)) {
+            Manipulator.getInstance().getLogger().warning(this.name + " is labeled as a command but doesn't implement CommandExecutor!");
         }
 
         if (this.types.contains(ClassType.MAIN) && this.extendsMain) {
             this.builder.setMain(this.name.replaceAll("/", "."));
+        } else if (this.types.contains(ClassType.MAIN)) {
+            Manipulator.getInstance().getLogger().warning(this.name + " is labeled as a module but doesn't extend ManipulatorModule!");
         }
 
         super.visitEnd();

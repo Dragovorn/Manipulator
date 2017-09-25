@@ -1,14 +1,18 @@
 package com.dragovorn.manipulator.module;
 
 import com.dragovorn.manipulator.Manipulator;
+import com.dragovorn.manipulator.command.Command;
+import com.dragovorn.manipulator.command.executor.CommandExecutor;
+import com.dragovorn.manipulator.command.console.CommandConsole;
+import com.dragovorn.manipulator.command.game.CommandGame;
 import com.dragovorn.manipulator.module.asm.ModuleClassVisitor;
 import com.dragovorn.manipulator.util.FileUtil;
 import org.objectweb.asm.ClassReader;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.*;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -109,11 +113,11 @@ public class ModuleManager {
 
         if (status) {
             try {
-                URLClassLoader loader = new ModuleLoader(new URL[] {info.getFile().toURI().toURL()});
+                ModuleLoader loader = new ModuleLoader(new URL[] {info.getFile().toURI().toURL()});
 
                 Class<?> main = loader.loadClass(info.getMain());
                 ManipulatorModule clazz = (ManipulatorModule) main.getDeclaredConstructor().newInstance();
-                clazz.init(info);
+                clazz.init(info, loader);
 
                 this.modules.put(info.getName(), clazz);
                 Manipulator.getInstance().getLogger().log(Level.INFO, "Loading {0} version {1} by {2}...", new Object[] { info.getName(), info.getVersion(), info.getAuthor() });
@@ -140,6 +144,40 @@ public class ModuleManager {
                 Manipulator.getInstance().getLogger().log(Level.INFO, "Enabling {0} version {1} by {2}...", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getVersion(), plugin.getInfo().getName() });
 
                 plugin.onEnable();
+
+                if (plugin.getInfo().hasCommands()) {
+                    List<Command> commands = new ArrayList<>();
+
+                    if (!plugin.getInfo().getConsoleCommands().isEmpty()) {
+                        Manipulator.getInstance().getLogger().log(Level.INFO, "[{0}] Registering {1} console commands...", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getConsoleCommands().size() });
+
+                        plugin.getInfo().getConsoleCommands().forEach((name, path) -> {
+                            try {
+                                commands.add(new CommandConsole((CommandExecutor) plugin.getLoader().loadClass(path).getDeclaredConstructor().newInstance(), name));
+                            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+
+                    if (!plugin.getInfo().getGameCommands().isEmpty()) {
+                        Manipulator.getInstance().getLogger().log(Level.INFO, "[{0}] Registering {1} game commands...", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getGameCommands().size() });
+
+                        plugin.getInfo().getGameCommands().forEach((name, path) -> {
+                            try {
+                                commands.add(new CommandGame((CommandExecutor) plugin.getLoader().loadClass(path).getDeclaredConstructor().newInstance(), name));
+                            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+
+                    commands.forEach(Manipulator.getInstance()::registerCommand);
+                }
+
+                if (plugin.getInfo().hasListeners()) {
+                    Manipulator.getInstance().getLogger().log(Level.INFO, "[{0}] Registering {1} listeners...");
+                }
 
                 Manipulator.getInstance().getLogger().log(Level.INFO, "Enabled {0} version {1} by {2}!", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getVersion(), plugin.getInfo().getName() });
             } catch (Throwable throwable) {
@@ -168,7 +206,7 @@ public class ModuleManager {
         Manipulator.getInstance().getLogger().info("Finished disabling modules!");
     }
 
-    public static ModuleInfo loadModuleInfo(File file) throws IOException {
+    private ModuleInfo loadModuleInfo(File file) throws IOException {
         ModuleInfo.Builder builder = new ModuleInfo.Builder(file);
 
         if (file.getName().matches("(.+).(jar)")) {
