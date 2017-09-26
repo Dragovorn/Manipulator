@@ -1,14 +1,18 @@
 package com.dragovorn.manipulator.module;
 
+import com.dragovorn.manipulator.log.ModuleLogger;
 import com.dragovorn.manipulator.util.FileUtil;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 public class ManipulatorModule {
 
     private ModuleInfo info;
 
     private File moduleDirectory;
+
+    private ModuleLogger logger;
 
     private ModuleLoader loader;
 
@@ -19,7 +23,12 @@ public class ManipulatorModule {
     final void init(ModuleInfo info, ModuleLoader loader) {
         this.info = info;
         this.loader = loader;
+        this.logger = new ModuleLogger(this);
         this.moduleDirectory = new File(FileUtil.modules, info.getName());
+    }
+
+    public Logger getLogger() {
+        return this.logger;
     }
 
     public ModuleInfo getInfo() {

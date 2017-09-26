@@ -143,7 +143,7 @@ public class ModuleManager {
 
         for (ManipulatorModule plugin : this.modules.values()) {
             try {
-                Manipulator.getInstance().getLogger().log(Level.INFO, "Enabling {0} v{1} by {2}...", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getVersion(), plugin.getInfo().getName() });
+                Manipulator.getInstance().getLogger().log(Level.INFO, "Enabling {0} v{1} by {2}...", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getVersion(), plugin.getInfo().getAuthor() });
 
                 plugin.onEnable();
 
@@ -151,7 +151,7 @@ public class ModuleManager {
                     List<Command> commands = new ArrayList<>();
 
                     if (!plugin.getInfo().getConsoleCommands().isEmpty()) {
-                        Manipulator.getInstance().getLogger().log(Level.INFO, "[{0}] Registering {1} console command(s)...", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getConsoleCommands().size() });
+                        plugin.getLogger().log(Level.INFO, "Registering {0} console command(s)...", new Object[] { plugin.getInfo().getConsoleCommands().size() });
 
                         plugin.getInfo().getConsoleCommands().forEach((name, path) -> {
                             try {
@@ -163,7 +163,7 @@ public class ModuleManager {
                     }
 
                     if (!plugin.getInfo().getGameCommands().isEmpty()) {
-                        Manipulator.getInstance().getLogger().log(Level.INFO, "[{0}] Registering {1} game command(s)...", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getGameCommands().size() });
+                        plugin.getLogger().log(Level.INFO, "Registering {0} game command(s)...", new Object[] { plugin.getInfo().getGameCommands().size() });
 
                         plugin.getInfo().getGameCommands().forEach((name, path) -> {
                             try {
@@ -178,7 +178,7 @@ public class ModuleManager {
                 }
 
                 if (plugin.getInfo().hasListeners()) {
-                    Manipulator.getInstance().getLogger().log(Level.INFO, "[{0}] Registering {1} listener(s)...", new Object[] { plugin.getInfo().getName(), plugin.getInfo().getNumListeners() });
+                    plugin.getLogger().log(Level.INFO, "Registering {0} listener(s)...", new Object[] { plugin.getInfo().getNumListeners() });
 
                     plugin.getInfo().getListeners().forEach((event, listeners) -> listeners.forEach((clazz, methods) -> {
                         try {
