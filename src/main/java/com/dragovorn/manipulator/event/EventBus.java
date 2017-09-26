@@ -19,8 +19,8 @@ public class EventBus {
         this.listeners.computeIfPresent(event.getClass(), ((event1, methods) -> {
             methods.forEach((method -> {
                 try {
-                    method.invoke(event);
-                } catch (IllegalAccessException | InvocationTargetException e) {
+                    method.invoke(method.getDeclaringClass().newInstance(), event);
+                } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
                     e.printStackTrace();
                 }
             }));

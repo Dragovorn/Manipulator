@@ -10,10 +10,13 @@ import com.dragovorn.manipulator.event.EventBus;
 import com.dragovorn.manipulator.log.DragonLogger;
 import com.dragovorn.manipulator.log.LoggingOutputStream;
 import com.dragovorn.manipulator.module.ModuleManager;
+import com.dragovorn.manipulator.network.Server;
 import com.dragovorn.manipulator.util.FileUtil;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -30,6 +33,8 @@ public class Manipulator {
     private ModuleManager moduleManager;
 
     private CommandManager commandManager;
+
+    private Server server;
 
     private Logger logger;
 
@@ -60,9 +65,20 @@ public class Manipulator {
         this.commandManager.registerCommand(new CommandConsole(new VersionExecutor(), "version"));
         this.commandManager.registerCommand(new CommandConsole(new CommandsExecutor(), "commands"));
         this.logger.info("Built-in console commands registered!");
+        this.logger.info("Opening connection...");
+        this.server = new Server(8080, 10);
+        this.logger.info("Opened connection!");
+        this.logger.info("Opening server socket...");
 
         this.moduleManager.loadModules();
         this.moduleManager.enableModules();
+
+        this.server.open();
+        try {
+            this.logger.info("Listening on " + InetAddress.getLocalHost().getHostAddress() + ":" + this.server.getPort());
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
     }
 
     public void shutdown() {
@@ -74,6 +90,9 @@ public class Manipulator {
 
             @Override
             public void run() {
+                getLogger().info("Closing server socket...");
+                server.close();
+
                 moduleManager.disableModules();
 
                 for (Handler handler : getLogger().getHandlers()) {
