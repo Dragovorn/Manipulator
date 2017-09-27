@@ -17,15 +17,15 @@ public class Server {
             this.socket = new ServerSocket(port, backlog);
         } catch (IOException exception) {
             Manipulator.getInstance().getLogger().severe("***************************** FAILED TO BIND PORT *****************************");
-            Manipulator.getInstance().getLogger().severe("* Port: " + this.port + genEnding(8, String.valueOf(this.port).length()));
-            Manipulator.getInstance().getLogger().severe("***************************** FAILED TO BIND ADDRESS *****************************");
+            Manipulator.getInstance().getLogger().severe("* Port: " + this.port + genEnding(String.valueOf(this.port).length()));
+            Manipulator.getInstance().getLogger().severe("***************************** FAILED TO BIND PORT *****************************");
         }
     }
 
-    private String genEnding(int main, int strLen) {
+    private String genEnding(int strLen) {
         StringBuilder builder = new StringBuilder();
 
-        for (;main < 79 - (strLen + 1); main++) {
+        for (int x = 0;x < 79 - (strLen + 1); x++) {
             builder.append(' ');
         }
 

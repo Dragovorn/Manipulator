@@ -187,7 +187,7 @@ public class ModuleManager {
 
                             methods.forEach(method -> {
                                 try {
-                                    Manipulator.getInstance().getEventBus().registerListener(eventClass, listener.getDeclaredMethod(method, eventClass));
+                                    Manipulator.getInstance().getEventBus().registerListener(eventClass, listener.getDeclaredMethod(method, eventClass), plugin);
                                 } catch (NoSuchMethodException e) {
                                     e.printStackTrace();
                                 }
