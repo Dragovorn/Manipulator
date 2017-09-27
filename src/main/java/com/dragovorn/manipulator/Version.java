@@ -5,7 +5,7 @@ import com.dragovorn.manipulator.util.FileUtil;
 import java.io.IOException;
 import java.util.Properties;
 
-class Version {
+public class Version {
 
     private String version;
 
