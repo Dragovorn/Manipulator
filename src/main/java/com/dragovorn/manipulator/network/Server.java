@@ -4,8 +4,6 @@ import com.dragovorn.manipulator.Manipulator;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Server {
 
@@ -13,11 +11,10 @@ public class Server {
 
     private ServerSocket socket;
 
-    private List<Connection> connections;
+    private Thread serverThread;
 
     public Server(int port, int backlog) {
         this.port = port;
-        this.connections = new ArrayList<>();
         try {
             this.socket = new ServerSocket(port, backlog);
         } catch (IOException exception) {
@@ -42,17 +39,18 @@ public class Server {
     }
 
     public void open() {
-        new Thread("Connection Thread") {
+        this.serverThread = new Thread("Connection Thread") {
 
             @Override
             public void run() {
                 try {
                     while (socket != null && !socket.isClosed()) {
-                        connections.add(new Connection(socket.accept()));
+                        new Connection(socket.accept());
                     }
                 } catch (IOException e) { /* DO NOTHING */ }
             }
-        }.start();
+        };
+        this.serverThread.start();
     }
 
     public void close() {
@@ -66,6 +64,10 @@ public class Server {
             e.printStackTrace();
         }
 
-        this.connections.forEach(Connection::close);
+        try {
+            this.serverThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
