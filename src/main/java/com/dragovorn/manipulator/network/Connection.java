@@ -1,12 +1,16 @@
 package com.dragovorn.manipulator.network;
 
 import com.dragovorn.manipulator.Manipulator;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.EmptyByteBuf;
 
+import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +22,7 @@ public class Connection implements Runnable {
 
     private InetAddress address;
 
-    private InputStream input;
+    private DataInputStream input;
 
     private OutputStream output;
 
@@ -28,7 +32,7 @@ public class Connection implements Runnable {
         this.socket = socket;
         this.address = this.socket.getInetAddress();
         try {
-            this.input = this.socket.getInputStream();
+            this.input = new DataInputStream(this.socket.getInputStream());
             this.output = this.socket.getOutputStream();
         } catch (IOException e) {
             e.printStackTrace();
@@ -64,18 +68,18 @@ public class Connection implements Runnable {
 
     @Override
     public void run() {
+        ByteBuf buffer = new EmptyByteBuf(ByteBufAllocator.DEFAULT);
+        buffer.writeBoolean(false);
+        buffer.writeInt(0);
+        buffer.writeCharSequence("THIS IS FROM A MANIPULATOR SERVER", Charset.forName("UTF-8"));
+
         try {
-            int numByte = this.input.available();
-            byte[] buf = new byte[numByte];
-
-            this.input.read(buf, 2, 3); // FIXME throws java.lang.ArrayIndexOutOfBoundsException: length == 3 off == 2 buffer length == 0
-
-            for (byte d : buf) {
-                System.out.println((char)d+":" + d);
-            }
+            this.output.write(buffer.array());
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        Manipulator.getInstance().getLogger().info("Sent rejection packet");
 
         close();
     }
