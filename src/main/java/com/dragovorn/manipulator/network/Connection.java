@@ -2,8 +2,7 @@ package com.dragovorn.manipulator.network;
 
 import com.dragovorn.manipulator.Manipulator;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.EmptyByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -68,13 +67,17 @@ public class Connection implements Runnable {
 
     @Override
     public void run() {
-        ByteBuf buffer = new EmptyByteBuf(ByteBufAllocator.DEFAULT);
+        byte[] str = Charset.forName("UTF-8").encode("THIS IS FROM A MANIPULATOR SERVER").array();
+
+        ByteBuf buffer = Unpooled.buffer();
         buffer.writeBoolean(false);
         buffer.writeInt(0);
-        buffer.writeCharSequence("THIS IS FROM A MANIPULATOR SERVER", Charset.forName("UTF-8"));
+        buffer.writeInt(str.length);
+        buffer.writeBytes(str);
 
         try {
             this.output.write(buffer.array());
+            this.output.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
