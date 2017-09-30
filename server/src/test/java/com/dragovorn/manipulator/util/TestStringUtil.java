@@ -23,9 +23,9 @@ public class TestStringUtil {
     @DataProvider
     public static Object[][] formatClassPathData() {
         return new Object[][] {
-                { "com/dragovorn/manipulator/Main", Main.class },
-                { "com/dragovorn/manipulator/Manipulator", Manipulator.class },
-                { "com/dragovorn/manipulator/Version", Version.class }
+                { "com/dragovorn/com.dragovorn.manipulator/Main", Main.class },
+                { "com/dragovorn/com.dragovorn.manipulator/Manipulator", Manipulator.class },
+                { "com/dragovorn/com.dragovorn.manipulator/Version", Version.class }
         };
     }
 }
