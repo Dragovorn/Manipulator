@@ -15,7 +15,7 @@ import java.util.List;
 
 public class Connection implements Runnable {
 
-    private static List<Connection> connectionPool = new ArrayList<>();
+    static List<Connection> connectionPool = new ArrayList<>();
 
     private Socket socket;
 
@@ -61,29 +61,25 @@ public class Connection implements Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        connectionPool.remove(this);
     }
 
     @Override
     public void run() {
         byte[] str = Charset.forName("UTF-8").encode("THIS IS FROM A MANIPULATOR SERVER").array();
 
-        ByteBuf buffer = Unpooled.buffer();
-        buffer.writeBoolean(false);
-        buffer.writeInt(0);
-        buffer.writeInt(str.length);
-        buffer.writeBytes(str);
-
         try {
+            ByteBuf buffer = Unpooled.buffer();
+            buffer.writeInt(0);
+            buffer.writeInt(639);
             this.output.write(buffer.array());
+
             this.output.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        Manipulator.getInstance().getLogger().info("Sent rejection packet");
+        Manipulator.getInstance().getLogger().info("Sent protocol packet");
 
-        close();
+//        close();
     }
 }

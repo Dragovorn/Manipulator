@@ -58,6 +58,9 @@ public class Server {
             return;
         }
 
+        Connection.connectionPool.forEach(Connection::close);
+        Connection.connectionPool.clear();
+
         try {
             this.socket.close();
         } catch (IOException e) {
