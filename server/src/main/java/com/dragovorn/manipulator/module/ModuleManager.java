@@ -56,7 +56,7 @@ public class ModuleManager {
         Map<ModuleInfo, Boolean> pluginStatus = new HashMap<>();
 
         for (Map.Entry<String, ModuleInfo> entry : this.load.entrySet()) {
-            if (!loadPlugin(pluginStatus, new Stack<>(), entry.getValue())) {
+            if (!loadModule(pluginStatus, new Stack<>(), entry.getValue())) {
                 Manipulator.getInstance().getLogger().log(Level.INFO, "Failed to enable {0}", entry.getKey());
             }
         }
@@ -67,7 +67,7 @@ public class ModuleManager {
         this.load = null;
     }
 
-    private boolean loadPlugin(Map<ModuleInfo, Boolean> pluginStatus, Stack<ModuleInfo> dependencies, ModuleInfo info) {
+    private boolean loadModule(Map<ModuleInfo, Boolean> pluginStatus, Stack<ModuleInfo> dependencies, ModuleInfo info) {
         if (pluginStatus.containsKey(info)) {
             return pluginStatus.get(info);
         }
@@ -98,7 +98,7 @@ public class ModuleManager {
                     status = false;
                 } else {
                     dependencies.push(info);
-                    dependStatus = this.loadPlugin(pluginStatus, dependencies, depend);
+                    dependStatus = this.loadModule(pluginStatus, dependencies, depend);
                     dependencies.pop();
                 }
             }
