@@ -6,6 +6,7 @@ import com.dragovorn.manipulator.Version;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -14,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(DataProviderRunner.class)
 public class TestStringUtil {
 
+    @Ignore
     @Test
     @UseDataProvider("formatClassPathData")
     public void testFormatClassPath(String expected, Class<?> clazz) {
